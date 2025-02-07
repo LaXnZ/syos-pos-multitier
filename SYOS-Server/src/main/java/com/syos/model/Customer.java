@@ -3,100 +3,38 @@ package com.syos.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class Customer {
+public class Customer extends User {
     private int customerId;
-    private String name;
     private String phoneNumber;
-    private String email;
     private int loyaltyPoints;
     private BigDecimal totalSpent;
     private LocalDate lastPurchaseDate;
 
-
     public Customer() {
+        super(); // Call User constructor
     }
 
-    @Override
-    public String toString() {
-        return "Customer ID: " + customerId + ", Name: " + name + ", Phone: " + phoneNumber +
-                ", Email: " + email + ", Loyalty Points: " + loyaltyPoints +
-                ", Total Spent: " + totalSpent + ", Last Purchase Date: " + lastPurchaseDate;
-    }
-
-
-    public Customer(String name, String phoneNumber, String email, int loyaltyPoints, BigDecimal totalSpent,
-                    LocalDate lastPurchaseDate) {
-        this.name = name;
+    // ✅ Corrected constructor to match the call in `AuthService`
+    public Customer(int userId, String name, String email, String passwordHash, String phoneNumber, LocalDate lastPurchaseDate) {
+        super(userId, name, email, passwordHash, "CUSTOMER"); // Pass `userId` explicitly
         this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.loyaltyPoints = loyaltyPoints;
-        this.totalSpent = totalSpent;
+        this.loyaltyPoints = 0; // Default value
+        this.totalSpent = BigDecimal.ZERO; // Default value
         this.lastPurchaseDate = lastPurchaseDate;
     }
 
-    public Customer(String name, String phoneNumber, String email, LocalDate lastPurchaseDate) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.loyaltyPoints = 0; // Default loyalty points
-        this.totalSpent = BigDecimal.ZERO; // Default total spent
-        this.lastPurchaseDate = lastPurchaseDate;
-    }
+    public int getCustomerId() { return customerId; }
+    public void setCustomerId(int customerId) { this.customerId = customerId; }
 
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public int getCustomerId() {
-        return customerId;
-    }
+    public int getLoyaltyPoints() { return loyaltyPoints; }
+    public void setLoyaltyPoints(int loyaltyPoints) { this.loyaltyPoints = loyaltyPoints; }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
-    }
+    public BigDecimal getTotalSpent() { return totalSpent; }
+    public void setTotalSpent(BigDecimal totalSpent) { this.totalSpent = totalSpent; }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public int getLoyaltyPoints() {
-        return loyaltyPoints;
-    }
-
-    public void setLoyaltyPoints(int loyaltyPoints) {
-        this.loyaltyPoints = loyaltyPoints;
-    }
-
-    public BigDecimal getTotalSpent() {
-        return totalSpent;
-    }
-
-    public void setTotalSpent(BigDecimal totalSpent) {
-        this.totalSpent = totalSpent;
-    }
-
-    public LocalDate getLastPurchaseDate() {
-        return lastPurchaseDate;
-    }
-
-    public void setLastPurchaseDate(LocalDate lastPurchaseDate) {
-        this.lastPurchaseDate = lastPurchaseDate;
-    }
+    public LocalDate getLastPurchaseDate() { return lastPurchaseDate; }
+    public void setLastPurchaseDate(LocalDate lastPurchaseDate) { this.lastPurchaseDate = lastPurchaseDate; }
 }

@@ -10,24 +10,45 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public void save(Customer customer, Connection connection) {
-        String sql = "INSERT INTO customer (name, phone_number, email, loyalty_points, total_spent, last_purchase_date) VALUES (?, ?, ?, ?, ?, ?) RETURNING customer_id";
+        String sqlUser = "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?) RETURNING user_id";
+        String sqlCustomer = "INSERT INTO customer (name, phone_number, email, user_id) VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, customer.getName());
-            statement.setString(2, customer.getPhoneNumber());
-            statement.setString(3, customer.getEmail());
-            statement.setInt(4, customer.getLoyaltyPoints());
-            statement.setBigDecimal(5, customer.getTotalSpent());
-            statement.setDate(6, java.sql.Date.valueOf(LocalDate.now()));
+        try (PreparedStatement statementUser = connection.prepareStatement(sqlUser);
+             PreparedStatement statementCustomer = connection.prepareStatement(sqlCustomer)) {
 
-            ResultSet rs = statement.executeQuery();
+            connection.setAutoCommit(false); // ✅ Begin transaction
+
+            // Save user first
+            statementUser.setString(1, customer.getName());
+            statementUser.setString(2, customer.getEmail());
+            statementUser.setString(3, customer.getPasswordHash()); // Ensure this is hashed
+            statementUser.setString(4, "CUSTOMER");
+
+            ResultSet rs = statementUser.executeQuery();
+            int userId = -1;
             if (rs.next()) {
-                customer.setCustomerId(rs.getInt("customer_id"));
+                userId = rs.getInt("user_id");
+                customer.setUserId(userId);
             }
+
+            // Save customer with the linked user_id
+            statementCustomer.setString(1, customer.getName());
+            statementCustomer.setString(2, customer.getPhoneNumber());
+            statementCustomer.setString(3, customer.getEmail());
+            statementCustomer.setInt(4, userId);
+            statementCustomer.executeUpdate();
+
+            connection.commit(); // ✅ Commit transaction
         } catch (SQLException e) {
             System.err.println("❌ Error saving customer: " + e.getMessage());
+            try {
+                connection.rollback(); // Rollback on failure
+            } catch (SQLException ex) {
+                System.err.println("❌ Error rolling back: " + ex.getMessage());
+            }
         }
     }
+
 
     @Override
     public Customer findById(int customerId, Connection connection) {

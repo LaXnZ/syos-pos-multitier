@@ -61,8 +61,8 @@ fi
 
 echo "✅ Deployment completed successfully!"
 echo "🌍 Visit:"
-echo "➡ Server: http://localhost:8080/SYOS-Server/api/hello"
-echo "➡ Client: http://localhost:8080/SYOS-Client/index.jsp"
+echo "➡ Server: http://localhost:8080/SYOS-Server/"
+echo "➡ Client: http://localhost:8080/SYOS-Client/"
 
 # Step 7: Check what is running on port 8080
 echo "🔎 Checking running services on port 8080..."

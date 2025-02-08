@@ -1,0 +1,175 @@
+/* === Global Styles === */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #121212; /* Dark background */
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align top */
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* === Header Section === */
+header {
+    width: 100%;
+    padding: 40px 20px;
+    background-color: #1d1d1d;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 0;
+    color: #66BB6A; /* Accent green */
+}
+
+header p {
+    color: #bdbdbd;
+    font-size: 18px;
+}
+
+/* === Hero Section === */
+section.bg-white {
+    background-color: #fff;
+    padding: 40px 20px;
+    width: 100%;
+}
+
+section.bg-white h2 {
+    color: #66BB6A;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+section.bg-white p {
+    color: #bdbdbd;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+/* === Grid Layout for Categories === */
+section.bg-white .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 30px;
+    justify-content: center;
+}
+
+section.bg-white .grid .bg-gray-200 {
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    padding: 20px;
+    text-align: center;
+}
+
+section.bg-white .grid .bg-gray-200:hover {
+    background-color: #e5e7eb;
+    transform: scale(1.05);
+}
+
+section.bg-white .grid img {
+    max-width: 80%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+/* === Featured Products Section === */
+section.bg-gray-50 {
+    background-color: #f9fafb;
+    padding: 40px 20px;
+}
+
+section.bg-gray-50 h2 {
+    color: #66BB6A;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+section.bg-gray-50 .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 30px;
+}
+
+section.bg-gray-50 .grid .bg-white {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+section.bg-gray-50 .grid .bg-white:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+section.bg-gray-50 .grid img {
+    max-width: 80%;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+/* === Login/Register Buttons === */
+section.text-center {
+    margin: 50px 0;
+    text-align: center;
+}
+
+section.text-center a {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 10px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+section.text-center .bg-green-600 {
+    background-color: #4CAF50;
+}
+
+section.text-center .bg-blue-600 {
+    background-color: #2196F3;
+}
+
+section.text-center .bg-green-600:hover {
+    background-color: #388E3C;
+}
+
+section.text-center .bg-blue-600:hover {
+    background-color: #1976D2;
+}
+
+/* === Footer Section === */
+footer {
+    background-color: #1d1d1d;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    body {
+        padding: 20px;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    section.bg-white .grid, section.bg-gray-50 .grid {
+        grid-template-columns: 1fr 1fr; /* 2 columns for smaller devices */
+    }
+
+    section.text-center {
+        margin: 20px 0;
+    }
+}

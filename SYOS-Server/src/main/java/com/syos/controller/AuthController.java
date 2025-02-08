@@ -24,7 +24,15 @@ public class AuthController {
 
     @POST
     @Path("/login")
-    public Response loginUser(@QueryParam("email") String email, @QueryParam("password") String password) {
+    public Response loginUser(JsonObject credentials) {
+        String email = credentials.getString("email", null);
+        String password = credentials.getString("password", null);
+
+        if (email == null || password == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"❌ Email and password are required!\"}").build();
+        }
+
         JsonObject response = authService.login(email, password);
 
         if (response.containsKey("error")) {

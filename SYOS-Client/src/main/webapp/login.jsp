@@ -5,7 +5,7 @@
   Time: 23:16
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,29 +14,45 @@
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/styles.css">
     <script>
         async function loginUser(event) {
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault();
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
-            const response = await fetch("http://localhost:8080/SYOS-Server/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
+            try {
+                const response = await fetch("http://localhost:8080/SYOS-Server/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
 
-            const result = await response.json();
-            if (response.ok) {
-                sessionStorage.setItem("token", result.token);  // Store JWT token
-                sessionStorage.setItem("role", result.role);    // Store user role
+                const result = await response.json();
 
-                if (result.role === "ADMIN") {
-                    window.location.href = "admin-dashboard.jsp";
+                if (response.ok) {
+                    const expirationTime = new Date().getTime() + 4 * 60 * 60 * 1000; // 4 hours
+
+                    sessionStorage.setItem("token", result.token);
+                    sessionStorage.setItem("role", result.role);
+                    sessionStorage.setItem("name", result.name);
+                    sessionStorage.setItem("tokenExpiration", expirationTime);
+
+                    await fetch("http://localhost:8080/SYOS-Server/api/session", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: result.name, role: result.role })
+                    });
+
+                    if (result.role === "ADMIN") {
+                        window.location.href = "admin-dashboard.jsp";
+                    } else {
+                        window.location.href = "customer-dashboard.jsp";
+                    }
                 } else {
-                    window.location.href = "customer-dashboard.jsp";
+                    document.getElementById("error-message").innerText = result.error;
                 }
-            } else {
-                document.getElementById("error-message").innerText = result.error;
+            } catch (error) {
+                console.error("Login Error:", error);
+                document.getElementById("error-message").innerText = "Server error, try again.";
             }
         }
     </script>
@@ -58,6 +74,7 @@
 </div>
 </body>
 </html>
+
 
 
 

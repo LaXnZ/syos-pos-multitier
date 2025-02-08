@@ -19,22 +19,49 @@
             const name = document.getElementById("name").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
+            const messageContainer = document.getElementById("message-container");
+
+            const userData = {
+                name: name,
+                email: email,
+                password: password,
+                role: "CUSTOMER"
+            };
 
             const response = await fetch("http://localhost:8080/SYOS-Server/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password })
+                body: JSON.stringify(userData)
             });
 
             const result = await response.json();
             if (response.ok) {
-                alert("✅ Registration successful! Redirecting to login.");
-                window.location.href = "login.jsp";
+                messageContainer.innerHTML = "<p class='success-message'>✅ Registration successful! Redirecting to login...</p>";
+                setTimeout(() => {
+                    window.location.href = "login.jsp";
+                }, 2000);
             } else {
-                document.getElementById("error-message").innerText = result.error;
+                messageContainer.innerHTML = "<p class='success-message'>✅ Registration successful! Redirecting to login...</p>";
+                setTimeout(() => {
+                    window.location.href = "login.jsp";
+                }, 2000);
             }
         }
     </script>
+
+    <style>
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -50,9 +77,11 @@
         <input type="password" id="password" required>
 
         <button type="submit">Register</button>
-        <p id="error-message" style="color: red;"></p>
     </form>
     <p>Already have an account? <a href="login.jsp">Login here</a></p>
+
+    <!-- Message container -->
+    <div id="message-container"></div>
 </div>
 </body>
 </html>

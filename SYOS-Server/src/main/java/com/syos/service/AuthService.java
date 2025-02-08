@@ -22,6 +22,7 @@ public class AuthService {
 
     public JsonObject registerUser(User user) {
         try (Connection connection = ConnectionPool.getConnection()) {
+            // ✅ Check if user already exists
             if (userDAO.findByEmail(user.getEmail(), connection) != null) {
                 return Json.createObjectBuilder()
                         .add("error", "❌ User already exists!")
@@ -30,27 +31,38 @@ public class AuthService {
 
             System.out.println("🔍 Before Hashing: " + user.getPasswordHash());
 
+            // ✅ Hash the password before saving
             String hashedPassword = PasswordHasher.hashPassword(user.getPasswordHash());
             user.setPasswordHash(hashedPassword);
 
             System.out.println("🔍 Hashed Password: " + hashedPassword);
 
+            // ✅ Save user in the `users` table
             int userId = userDAO.saveUser(user, connection);
-            if (userId == -1) return Json.createObjectBuilder().add("error", "❌ Failed to create user!").build();
+            if (userId == -1) {
+                return Json.createObjectBuilder()
+                        .add("error", "❌ Failed to create user!")
+                        .build();
+            }
 
-            // ✅ Only insert customers, do not insert admins
+            // ✅ Insert into the `customer` table (Admins are not stored here)
             Customer customer = new Customer(userId, user.getName(), user.getEmail(), "0112345678", LocalDate.now());
             customerDAO.save(customer, connection);
 
+            // ✅ Return success response with HTTP 201 Created
             return Json.createObjectBuilder()
                     .add("message", "✅ User registered successfully!")
+                    .add("status", 201)  // ✅ Add status explicitly
                     .build();
         } catch (Exception e) {
             return Json.createObjectBuilder()
                     .add("error", "❌ Registration failed: " + e.getMessage())
+                    .add("status", 400)  // ✅ Ensure failure returns HTTP 400
                     .build();
         }
     }
+
+
 
 
     public JsonObject login(String email, String password) {

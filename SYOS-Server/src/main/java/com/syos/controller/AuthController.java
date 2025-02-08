@@ -17,8 +17,8 @@ public class AuthController {
     @POST
     @Path("/register")
     public Response registerUser(User user) {
-        String result = authService.registerUser(user);
-        return result.contains("✅") ? Response.status(Response.Status.CREATED).entity(result).build()
+        JsonObject result = authService.registerUser(user);
+        return result.containsKey("✅") ? Response.status(Response.Status.CREATED).entity(result).build()
                 : Response.status(Response.Status.BAD_REQUEST).entity(result).build();
     }
 

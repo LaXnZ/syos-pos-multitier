@@ -19,7 +19,7 @@ public class UserDAOImpl implements UserDAO {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
-            statement.setString(3, user.getPasswordHash()); // ✅ Hash before storing
+            statement.setString(3, user.getPasswordHash().trim()); // ✅ Trim any extra spaces
             statement.setString(4, user.getRole());
 
             ResultSet rs = statement.executeQuery();
@@ -40,6 +40,9 @@ public class UserDAOImpl implements UserDAO {
         }
         return -1;
     }
+
+
+
 
     /**
      * ✅ Inserts the user into the CUSTOMER table.
@@ -84,11 +87,14 @@ public class UserDAOImpl implements UserDAO {
             statement.setString(1, email);
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
+                System.out.println("🔍 Fetching User: " + rs.getString("email"));
+                System.out.println("🔍 Stored Hash in DB: " + rs.getString("password_hash"));
+
                 return new User(
                         rs.getInt("user_id"),
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getString("password_hash"), // ✅ Fixed column name
+                        rs.getString("password_hash"),
                         rs.getString("role")
                 );
             }
@@ -97,4 +103,5 @@ public class UserDAOImpl implements UserDAO {
         }
         return null;
     }
+
 }

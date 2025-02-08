@@ -9,12 +9,19 @@ public class User {
 
     public User() {}
 
-    // ✅ Add this constructor to match the findByEmail() method call
+
     public User(int userId, String name, String email, String passwordHash, String role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
+    public User(int userId, String name, String email, String role) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
         this.role = role;
     }
 

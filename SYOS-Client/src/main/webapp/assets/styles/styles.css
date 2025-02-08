@@ -1,0 +1,138 @@
+/* === Global Styles === */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #121212;  /* Dark Mode */
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* === Containers (Login/Register) === */
+.container {
+    background: #1e1e1e;
+    padding: 25px;
+    border-radius: 10px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* === Headings === */
+h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #4CAF50; /* Dark Green */
+}
+
+/* === Form Elements === */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    text-align: left;
+    font-size: 14px;
+    color: #bdbdbd;
+    margin-bottom: 5px;
+}
+
+/* === Input Fields & Dropdowns === */
+input, select {
+    padding: 10px;
+    background: #2c2c2c;
+    border: 1px solid #4CAF50;
+    border-radius: 6px;
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+input:focus, select:focus {
+    border-color: #81c784;
+    outline: none;
+}
+
+/* === Buttons === */
+button {
+    background: #4CAF50; /* Dark Green */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #388E3C;
+}
+
+/* === Links === */
+a {
+    color: #66BB6A;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* === Navigation Bar (Admin/Customer) === */
+.navbar {
+    background: #1b1b1b;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+}
+
+.navbar a {
+    color: #e0e0e0;
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* === Minimalist Card Components === */
+.card {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 16px;
+    color: #66BB6A;
+}
+
+/* === Order Summary Panel (Compact) === */
+.order-summary {
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.order-summary p {
+    font-size: 14px;
+    color: #bdbdbd;
+}
+
+.order-summary .total {
+    font-weight: bold;
+    color: #66BB6A;
+    font-size: 16px;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    .container {
+        width: 85%;
+    }
+}

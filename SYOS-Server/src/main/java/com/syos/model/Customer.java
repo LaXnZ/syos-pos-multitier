@@ -14,9 +14,8 @@ public class Customer extends User {
         super(); // Call User constructor
     }
 
-    // ✅ Corrected constructor to match the call in `AuthService`
-    public Customer(int userId, String name, String email, String passwordHash, String phoneNumber, LocalDate lastPurchaseDate) {
-        super(userId, name, email, passwordHash, "CUSTOMER"); // Pass `userId` explicitly
+    public Customer(int userId, String name, String email, String phoneNumber, LocalDate lastPurchaseDate) {
+        super(userId, name, email, "CUSTOMER"); // Pass userId explicitly
         this.phoneNumber = phoneNumber;
         this.loyaltyPoints = 0; // Default value
         this.totalSpent = BigDecimal.ZERO; // Default value

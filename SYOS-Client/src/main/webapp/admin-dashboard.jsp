@@ -37,6 +37,7 @@
             <li><a href="manage-items.jsp">Manage Items</a></li>
             <li><a href="manage-customers.jsp">Manage Customers</a></li>
             <li><a href="manage-stock.jsp">Manage Stock</a></li>
+            <li><a href="manage-billing.jsp">Manage Billing</a></li>
             <li><a href="manage-reports.jsp">Generate Reports</a></li>
         </ul>
     </nav>

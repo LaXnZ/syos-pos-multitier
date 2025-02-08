@@ -1,7 +1,7 @@
 /* === Global Styles === */
 body {
     font-family: 'Inter', sans-serif;
-    background: #121212;  /* Dark Mode */
+    background: #121212; /* Dark background */
     color: #e0e0e0;
     margin: 0;
     padding: 0;
@@ -11,24 +11,24 @@ body {
     height: 100vh;
 }
 
-/* === Containers (Login/Register) === */
+/* === Containers === */
 .container {
-    background: #1e1e1e;
-    padding: 25px;
+    background: #1b1b1b;
+    padding: 30px;
     border-radius: 10px;
-    width: 320px;
+    width: 350px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* === Headings === */
 h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #4CAF50; /* Dark Green */
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #4CAF50; /* Green accent */
 }
 
-/* === Form Elements === */
+/* === Forms === */
 form {
     display: flex;
     flex-direction: column;
@@ -41,14 +41,14 @@ label {
     margin-bottom: 5px;
 }
 
-/* === Input Fields & Dropdowns === */
+/* === Inputs & Dropdowns === */
 input, select {
-    padding: 10px;
+    padding: 12px;
     background: #2c2c2c;
     border: 1px solid #4CAF50;
     border-radius: 6px;
     color: #e0e0e0;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
 input:focus, select:focus {
@@ -60,12 +60,12 @@ input:focus, select:focus {
 button {
     background: #4CAF50; /* Dark Green */
     color: white;
-    padding: 10px;
+    padding: 12px;
     border: none;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.2s ease-in-out;
 }
 
 button:hover {
@@ -83,40 +83,41 @@ a:hover {
     text-decoration: underline;
 }
 
-/* === Navigation Bar (Admin/Customer) === */
+/* === Navbar for Admin/Customer === */
 .navbar {
     background: #1b1b1b;
-    padding: 10px 20px;
+    padding: 15px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-radius: 8px;
+    width: 100%;
 }
 
 .navbar a {
     color: #e0e0e0;
     font-size: 14px;
-    padding: 8px 12px;
+    padding: 10px 15px;
 }
 
-/* === Minimalist Card Components === */
+/* === Dark Themed Cards === */
 .card {
     background: #1e1e1e;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
 }
 
 .card h3 {
-    font-size: 16px;
+    font-size: 18px;
     color: #66BB6A;
 }
 
-/* === Order Summary Panel (Compact) === */
+/* === Order Summary Panel === */
 .order-summary {
     background: #1e1e1e;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
 .order-summary p {

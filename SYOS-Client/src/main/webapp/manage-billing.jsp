@@ -11,144 +11,151 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Billing - Admin</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/manage-billing.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/admin-styles.css">
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             checkAdminAccess();
         });
 
         function checkAdminAccess() {
-            const role = sessionStorage.getItem("role");
+            var role = sessionStorage.getItem("role");
             if (!role || role !== "ADMIN") {
                 sessionStorage.clear();
                 window.location.href = "login.jsp";
             }
-
-            document.getElementById("admin-name").innerText = sessionStorage.getItem("name") || "Admin";
+            var adminName = sessionStorage.getItem("name") || "Admin";
+            document.getElementById("admin-name").textContent = adminName;
         }
 
-        // Function to create a new bill for a customer
-        async function createBill() {
-            const customerPhone = document.getElementById("customerPhone").value;
-            if (!customerPhone) {
-                alert("Please enter the customer phone number.");
+        function displayMessage(message, isError = false) {
+            var messageBox = document.getElementById("messageBox");
+            messageBox.textContent = message;
+            messageBox.style.color = isError ? "red" : "green";
+            messageBox.style.display = "block";
+            setTimeout(function() { messageBox.style.display = "none"; }, 3000);
+        }
+
+        function createBill(event) {
+            event.preventDefault();
+            var customerName = document.getElementById("customerName").value;
+            var customerPhone = document.getElementById("customerPhone").value;
+            var customerEmail = document.getElementById("customerEmail").value;
+
+            if (!customerName || !customerPhone || !customerEmail) {
+                displayMessage("Please enter customer details.", true);
                 return;
             }
 
-            try {
-                const response = await fetch("http://localhost:8080/SYOS-Server/api/billing/create", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ phoneNumber: customerPhone })
+            fetch("http://localhost:8080/SYOS-Server/api/billing/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: customerName, phoneNumber: customerPhone, email: customerEmail })
+            })
+                .then(response => response.json())
+                .then(bill => {
+                    localStorage.setItem("billId", bill.billId);
+                    showBillDetails(bill);
+                    displayMessage("Bill created successfully!");
+                    document.getElementById("addItemSection").style.display = "block";
+                })
+                .catch(error => {
+                    console.error("Error creating bill:", error);
+                    displayMessage("An error occurred while creating the bill.", true);
                 });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message || "Bill created successfully!");
-                    document.getElementById("billId").value = result.billId;  // Set the Bill ID in the form
-                    showBillSection();
-                } else {
-                    alert(result.error || "Failed to create bill.");
-                }
-            } catch (error) {
-                console.error("Error creating bill:", error);
-            }
         }
 
-        // Function to add an item to the bill
-        async function addItemToBill() {
-            const billId = document.getElementById("billId").value;
-            const itemCode = document.getElementById("itemCode").value;
-            const quantity = document.getElementById("itemQuantity").value;
-
-            if (!billId || !itemCode || !quantity) {
-                alert("Please enter all item details.");
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/billing/addItem/${billId}?quantity=${quantity}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ itemCode: itemCode })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message || "Item added to the bill.");
-                    // Optionally, you can refresh the bill details here
-                } else {
-                    alert(result.error || "Failed to add item.");
-                }
-            } catch (error) {
-                console.error("Error adding item:", error);
-            }
-        }
-
-        // Function to apply discount to the bill
-        async function applyDiscount() {
-            const billId = document.getElementById("billId").value;
-            const discountRate = document.getElementById("discountRate").value;
-
-            if (!billId || !discountRate) {
-                alert("Please enter discount rate.");
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/billing/applyDiscount/${billId}?discountRate=${discountRate}`, {
-                    method: "POST"
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message || "Discount applied.");
-                } else {
-                    alert(result.error || "Failed to apply discount.");
-                }
-            } catch (error) {
-                console.error("Error applying discount:", error);
-            }
-        }
-
-        // Function to finalize the bill (process payment)
-        async function finalizeBill() {
-            const billId = document.getElementById("billId").value;
-            const cashTendered = document.getElementById("cashTendered").value;
-            const useLoyalty = document.getElementById("useLoyalty").checked;
-
-            if (!billId || !cashTendered) {
-                alert("Please enter cash tendered.");
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/billing/finalize/${billId}?cash=${cashTendered}&useLoyalty=${useLoyalty}`, {
-                    method: "POST"
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message || "Bill finalized successfully.");
-                } else {
-                    alert(result.error || "Failed to finalize bill.");
-                }
-            } catch (error) {
-                console.error("Error finalizing bill:", error);
-            }
-        }
-
-        // Show the bill section after bill is created
-        function showBillSection() {
+        function showBillDetails(bill) {
             document.getElementById("billSection").style.display = "block";
+            document.getElementById("billId").textContent = bill.billId;
+            document.getElementById("billDate").textContent = bill.billDate;
+            document.getElementById("billTotal").textContent = bill.totalPrice;
+            document.getElementById("billDiscount").textContent = bill.discountAmount;
+            document.getElementById("billFinalPrice").textContent = bill.finalPrice;
+        }
+
+        function addItemToBill(event) {
+            event.preventDefault();
+            var billId = localStorage.getItem("billId");
+            var itemCode = document.getElementById("itemCode").value;
+            var quantity = parseInt(document.getElementById("itemQuantity").value);
+
+            if (!itemCode || isNaN(quantity)) {
+                displayMessage("Please enter valid item details.", true);
+                return;
+            }
+
+            fetch("http://localhost:8080/SYOS-Server/api/billing/addItem/" + billId + "?quantity=" + quantity, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ itemCode: itemCode })
+            })
+                .then(response => response.json())
+                .then(updatedBill => {
+                    showBillDetails(updatedBill);
+                    displayMessage("Item added successfully!");
+                    document.getElementById("itemCode").value = "";
+                    document.getElementById("itemQuantity").value = "";
+                })
+                .catch(error => {
+                    console.error("Error adding item:", error);
+                    displayMessage("An error occurred while adding the item.", true);
+                });
+        }
+
+        function applyDiscount(event) {
+            event.preventDefault();
+            var billId = localStorage.getItem("billId");
+            var discountRate = parseFloat(document.getElementById("discountRate").value);
+
+            if (isNaN(discountRate)) {
+                displayMessage("Please enter a valid discount rate.", true);
+                return;
+            }
+
+            fetch("http://localhost:8080/SYOS-Server/api/billing/applyDiscount/" + billId + "?discountRate=" + discountRate, {
+                method: "POST"
+            })
+                .then(response => response.json())
+                .then(updatedBill => {
+                    showBillDetails(updatedBill);
+                    displayMessage("Discount applied successfully!");
+                })
+                .catch(error => {
+                    console.error("Error applying discount:", error);
+                    displayMessage("An error occurred while applying the discount.", true);
+                });
+        }
+
+        function finalizeBill(event) {
+            event.preventDefault();
+            var billId = localStorage.getItem("billId");
+            var cashTendered = parseFloat(document.getElementById("cashTendered").value);
+            var useLoyalty = document.getElementById("useLoyalty").checked;
+
+            if (isNaN(cashTendered)) {
+                displayMessage("Please enter a valid cash amount.", true);
+                return;
+            }
+
+            fetch("http://localhost:8080/SYOS-Server/api/billing/finalize/" + billId + "?cash=" + cashTendered + "&useLoyalty=" + useLoyalty, {
+                method: "POST"
+            })
+                .then(response => response.json())
+                .then(finalizedBill => {
+                    showBillDetails(finalizedBill);
+                    displayMessage("Bill finalized successfully!");
+                    localStorage.removeItem("billId");
+                })
+                .catch(error => {
+                    console.error("Error finalizing bill:", error);
+                    displayMessage("An error occurred while finalizing the bill.", true);
+                });
         }
 
         function logout() {
             sessionStorage.clear();
+            localStorage.removeItem("billId");
             window.location.href = "login.jsp";
         }
     </script>
@@ -165,33 +172,43 @@
 <main class="container">
     <a href="admin-dashboard.jsp" class="back-btn">⬅️ Back to Dashboard</a>
 
+    <div id="messageBox" style="display: none; padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold;"></div>
+
     <h3>Create New Bill</h3>
-    <form onsubmit="createBill(); return false;">
-        <input type="text" id="customerPhone" placeholder="Enter customer phone number" required>
+    <form onsubmit="createBill(event)">
+        <input type="text" id="customerName" placeholder="Customer Name" required>
+        <input type="text" id="customerPhone" placeholder="Phone Number" required>
+        <input type="email" id="customerEmail" placeholder="Email" required>
         <button type="submit">Create Bill</button>
     </form>
 
     <div id="billSection" style="display:none;">
         <h3>Bill Details</h3>
-        <input type="hidden" id="billId">
+        <p>Bill ID: <span id="billId"></span></p>
+        <p>Date: <span id="billDate"></span></p>
+        <p>Total: <span id="billTotal"></span></p>
+        <p>Discount: <span id="billDiscount"></span></p>
+        <p>Final Price: <span id="billFinalPrice"></span></p>
 
-        <h4>Add Item to Bill</h4>
-        <input type="text" id="itemCode" placeholder="Item Code" required>
-        <input type="number" id="itemQuantity" placeholder="Quantity" required>
-        <button onclick="addItemToBill()">Add Item</button>
-
-        <h4>Apply Discount</h4>
-        <input type="number" id="discountRate" placeholder="Discount Rate (%)" required>
-        <button onclick="applyDiscount()">Apply Discount</button>
+        <div id="addItemSection" style="display:none;">
+            <h4>Add Item</h4>
+            <form onsubmit="addItemToBill(event)">
+                <input type="text" id="itemCode" placeholder="Item Code" required>
+                <input type="number" id="itemQuantity" placeholder="Quantity" required>
+                <button type="submit">Add Item</button>
+            </form>
+        </div>
 
         <h4>Finalize Bill</h4>
-        <input type="number" id="cashTendered" placeholder="Cash Tendered" required>
-        <label>
-            <input type="checkbox" id="useLoyalty"> Use Loyalty Points
-        </label>
-        <button onclick="finalizeBill()">Finalize Bill</button>
+        <form onsubmit="finalizeBill(event)">
+            <input type="number" id="cashTendered" placeholder="Cash Tendered" required>
+            <label><input type="checkbox" id="useLoyalty"> Use Loyalty Points</label>
+            <button type="submit">Finalize</button>
+        </form>
     </div>
 </main>
 </body>
 </html>
+
+
 

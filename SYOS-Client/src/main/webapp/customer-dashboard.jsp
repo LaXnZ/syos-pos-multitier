@@ -11,10 +11,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Customer Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/styles.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/customer-dashboard.css">
 
     <script>
-        // Redirect if no role is found in session storage
         if (!sessionStorage.getItem("role") || sessionStorage.getItem("role") !== "CUSTOMER") {
             window.location.href = "login.jsp";
         }
@@ -26,12 +25,15 @@
     </script>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h2>Welcome, <script>document.write(sessionStorage.getItem("name"));</script></h2>
-        <p>Role: <script>document.write(sessionStorage.getItem("role"));</script></p>
-        <button onclick="logout()">Logout</button>
+<div class="customer-container">
+    <header class="customer-navbar">
+        <div class="customer-navbar-content">
+            <h2>Welcome, <span id="customer-name"></span></h2>
+            <p>Role: <span id="customer-role"></span></p>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
+
     <nav>
         <ul>
             <li><a href="shop.jsp">Shop</a></li>
@@ -40,6 +42,12 @@
         </ul>
     </nav>
 </div>
+
+<script>
+    document.getElementById("customer-name").textContent = sessionStorage.getItem("name") || "Customer";
+    document.getElementById("customer-role").textContent = sessionStorage.getItem("role") || "CUSTOMER";
+</script>
+
 </body>
 </html>
 

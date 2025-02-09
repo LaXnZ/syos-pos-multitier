@@ -11,69 +11,104 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Customers - Admin</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/manage-customers.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/admin-styles.css">
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             checkAdminAccess();
-            fetchCustomers(); // Fetch all customers when the page loads
+            fetchCustomersFromDB();  // Fetch customers from API
         });
 
         function checkAdminAccess() {
-            const role = sessionStorage.getItem("role");
+            var role = sessionStorage.getItem("role");
             if (!role || role !== "ADMIN") {
                 sessionStorage.clear();
                 window.location.href = "login.jsp";
             }
-
-            document.getElementById("admin-name").innerText = sessionStorage.getItem("name") || "Admin";
+            var adminName = sessionStorage.getItem("name") || "Admin";
+            document.getElementById("admin-name").textContent = adminName;
         }
 
-        async function fetchCustomers() {
-            try {
-                const response = await fetch("http://localhost:8080/SYOS-Server/api/customers");
-                const customers = await response.json();
-
-                if (Array.isArray(customers) && customers.length > 0) {
-                    displayCustomers(customers);
-                } else {
-                    console.error("No customers found or invalid data structure");
-                }
-            } catch (error) {
-                console.error("Error fetching customers:", error);
-            }
+        function fetchCustomersFromDB() {
+            fetch("http://localhost:8080/SYOS-Server/api/customers")
+                .then(function(response) { return response.json(); })
+                .then(function(customers) {
+                    if (Array.isArray(customers) && customers.length > 0) {
+                        localStorage.setItem("customers", JSON.stringify(customers));
+                        displayAllCustomers(customers);
+                    } else {
+                        console.warn("No customers found from API.");
+                    }
+                })
+                .catch(function(error) {
+                    console.error("Error fetching customers from API:", error);
+                });
         }
 
-        function displayCustomers(customers) {
-            const tableBody = document.getElementById("customers-table-body");
+        function displayAllCustomers(customers) {
+            var tableBody = document.getElementById("customers-table-body");
             tableBody.innerHTML = "";
 
-            customers.forEach(customer => {
-                const row = document.createElement("tr");
+            customers.forEach(function(customer) {
+                var row = document.createElement("tr");
 
-                row.innerHTML = `
-                    <td>${customer.customerId}</td>
-                    <td>${customer.name}</td>
-                    <td>${customer.phoneNumber}</td>
-                    <td>${customer.email}</td>
-                    <td>
-                        <button class="edit-btn" onclick="editCustomer(${customer.customerId}, '${customer.name}', '${customer.phoneNumber}', '${customer.email}')">✏️ Edit</button>
-                        <button class="delete-btn" onclick="deleteCustomer(${customer.customerId})">❌ Delete</button>
-                    </td>
-                `;
+                var idCell = document.createElement("td");
+                var nameCell = document.createElement("td");
+                var phoneCell = document.createElement("td");
+                var emailCell = document.createElement("td");
+                var actionCell = document.createElement("td");
+
+                idCell.textContent = customer.customerId;
+                nameCell.textContent = customer.name;
+                phoneCell.textContent = customer.phoneNumber;
+                emailCell.textContent = customer.email;
+
+                var editButton = document.createElement("button");
+                editButton.className = "edit-btn";
+                editButton.textContent = "✏️ Edit";
+                editButton.onclick = function () {
+                    editCustomer(customer.customerId, customer.name, customer.phoneNumber, customer.email);
+                };
+
+                var deleteButton = document.createElement("button");
+                deleteButton.className = "delete-btn";
+                deleteButton.textContent = "❌ Delete";
+                deleteButton.onclick = function () {
+                    deleteCustomer(customer.customerId);
+                };
+
+                actionCell.appendChild(editButton);
+                actionCell.appendChild(deleteButton);
+
+                row.appendChild(idCell);
+                row.appendChild(nameCell);
+                row.appendChild(phoneCell);
+                row.appendChild(emailCell);
+                row.appendChild(actionCell);
+
                 tableBody.appendChild(row);
             });
         }
 
-        async function deleteCustomer(customerId) {
+        function deleteCustomer(customerId) {
             if (!confirm("Are you sure you want to delete this customer?")) return;
-            try {
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/customers/${customerId}`, { method: "DELETE" });
-                const result = await response.json();
-                alert(result.message || result);
-                fetchCustomers(); // Refresh the list after deletion
-            } catch (error) {
-                console.error("Error deleting customer:", error);
-            }
+
+            fetch("http://localhost:8080/SYOS-Server/api/customers/" + customerId, {
+                method: "DELETE"
+            })
+                .then(function(response) { return response.text(); })
+                .then(function(message) {
+                    console.log("Delete response:", message);
+                    var customers = JSON.parse(localStorage.getItem("customers")) || [];
+                    customers = customers.filter(function(customer) {
+                        return customer.customerId !== customerId;
+                    });
+                    localStorage.setItem("customers", JSON.stringify(customers));
+                    displayAllCustomers(customers);
+                })
+                .catch(function(error) {
+                    console.error("Error deleting customer:", error);
+                });
         }
 
         function editCustomer(customerId, name, phoneNumber, email) {
@@ -84,47 +119,55 @@
             document.getElementById("editForm").style.display = "block";
         }
 
-        async function addCustomer(event) {
+        function addCustomer(event) {
             event.preventDefault();
-            const name = document.getElementById("customerName").value;
-            const phoneNumber = document.getElementById("customerPhone").value;
-            const email = document.getElementById("customerEmail").value;
+            var name = document.getElementById("customerName").value;
+            var phoneNumber = document.getElementById("customerPhone").value;
+            var email = document.getElementById("customerEmail").value;
 
-            const response = await fetch("http://localhost:8080/SYOS-Server/api/customers", {
+            fetch("http://localhost:8080/SYOS-Server/api/customers", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, phoneNumber, email })
-            });
-
-            const result = await response.json();
-            alert(result.message || result);
-            fetchCustomers(); // Refresh the items list
+                body: JSON.stringify({ name: name, phoneNumber: phoneNumber, email: email })
+            })
+                .then(function(response) { return response.text(); })
+                .then(function(message) {
+                    console.log("Add response:", message);
+                    fetchCustomersFromDB(); // Refresh data from API
+                })
+                .catch(function(error) {
+                    console.error("Error adding customer:", error);
+                });
         }
 
-        async function updateCustomer(event) {
+        function updateCustomer(event) {
             event.preventDefault();
-            const customerId = document.getElementById("updateCustomerId").value;
-            const name = document.getElementById("updateCustomerName").value;
-            const phoneNumber = document.getElementById("updateCustomerPhone").value;
-            const email = document.getElementById("updateCustomerEmail").value;
+            var customerId = parseInt(document.getElementById("updateCustomerId").value);
+            var name = document.getElementById("updateCustomerName").value;
+            var phoneNumber = document.getElementById("updateCustomerPhone").value;
+            var email = document.getElementById("updateCustomerEmail").value;
 
-            const response = await fetch(`http://localhost:8080/SYOS-Server/api/customers/${customerId}`, {
+            fetch("http://localhost:8080/SYOS-Server/api/customers/" + customerId, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customerId, name, phoneNumber, email })
-            });
-
-            const result = await response.json();
-            alert(result.message || result);
-            document.getElementById("editForm").style.display = "none";
-            fetchCustomers(); // Refresh the items list
+                body: JSON.stringify({ customerId: customerId, name: name, phoneNumber: phoneNumber, email: email })
+            })
+                .then(function(response) { return response.text(); })
+                .then(function(message) {
+                    console.log("Update response:", message);
+                    fetchCustomersFromDB(); // Refresh data from API
+                    document.getElementById("editForm").style.display = "none";
+                })
+                .catch(function(error) {
+                    console.error("Error updating customer:", error);
+                });
         }
 
         function logout() {
             sessionStorage.clear();
+            localStorage.removeItem("customers");
             window.location.href = "login.jsp";
         }
-
     </script>
 </head>
 <body>
@@ -168,11 +211,10 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            <tbody id="customers-table-body">
-            <!-- Table rows will be dynamically added here -->
-            </tbody>
+            <tbody id="customers-table-body"></tbody>
         </table>
     </div>
 </main>
 </body>
 </html>
+

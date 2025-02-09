@@ -7,6 +7,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @Path("/reports")
 public class ReportingController {
@@ -23,8 +25,15 @@ public class ReportingController {
     public Response getTotalSalesReport(@QueryParam("date") String date) {
         try {
             LocalDate reportDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
-            reportingManager.generateTotalSalesReport(reportDate);
-            return Response.ok("{\"message\": \"Total Sales Report generated successfully.\"}").build();
+            List<Map<String, Object>> reportData = reportingManager.generateTotalSalesReport(reportDate);
+
+            if (reportData == null || reportData.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"message\": \"No sales data available for the selected date.\"}")
+                        .build();
+            }
+
+            return Response.ok(reportData).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to generate Total Sales Report: " + e.getMessage() + "\"}")
@@ -38,8 +47,15 @@ public class ReportingController {
     public Response getReshelvingReport(@QueryParam("date") String date) {
         try {
             LocalDate reportDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
-            reportingManager.generateReshelvingReport(reportDate);
-            return Response.ok("{\"message\": \"Reshelving Report generated successfully.\"}").build();
+            List<Map<String, Object>> reportData = reportingManager.generateReshelvingReport(reportDate);
+
+            if (reportData == null || reportData.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"message\": \"No reshelving data available for the selected date.\"}")
+                        .build();
+            }
+
+            return Response.ok(reportData).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to generate Reshelving Report: " + e.getMessage() + "\"}")
@@ -53,8 +69,15 @@ public class ReportingController {
     public Response getReorderLevelReport(@QueryParam("date") String date) {
         try {
             LocalDate reportDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
-            reportingManager.generateReorderLevelReport(reportDate);
-            return Response.ok("{\"message\": \"Reorder Level Report generated successfully.\"}").build();
+            List<Map<String, Object>> reportData = reportingManager.generateReorderLevelReport(reportDate);
+
+            if (reportData == null || reportData.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"message\": \"No reorder level data available for the selected date.\"}")
+                        .build();
+            }
+
+            return Response.ok(reportData).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to generate Reorder Level Report: " + e.getMessage() + "\"}")
@@ -68,8 +91,15 @@ public class ReportingController {
     public Response getStockReport(@QueryParam("date") String date) {
         try {
             LocalDate reportDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
-            reportingManager.generateStockReport(reportDate);
-            return Response.ok("{\"message\": \"Stock Report generated successfully.\"}").build();
+            List<Map<String, Object>> reportData = reportingManager.generateStockReport(reportDate);
+
+            if (reportData == null || reportData.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"message\": \"No stock data available for the selected date.\"}")
+                        .build();
+            }
+
+            return Response.ok(reportData).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to generate Stock Report: " + e.getMessage() + "\"}")
@@ -83,8 +113,15 @@ public class ReportingController {
     public Response getBillReport(@QueryParam("date") String date) {
         try {
             LocalDate reportDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
-            reportingManager.generateBillReport(reportDate);
-            return Response.ok("{\"message\": \"Bill Report generated successfully.\"}").build();
+            List<Map<String, Object>> reportData = reportingManager.generateBillReport(reportDate);
+
+            if (reportData == null || reportData.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .entity("{\"message\": \"No bill data available for the selected date.\"}")
+                        .build();
+            }
+
+            return Response.ok(reportData).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"Failed to generate Bill Report: " + e.getMessage() + "\"}")

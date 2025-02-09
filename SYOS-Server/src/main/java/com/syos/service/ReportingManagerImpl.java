@@ -8,7 +8,7 @@ import com.syos.model.Stock;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ReportingManagerImpl implements ReportingManager {
@@ -21,9 +21,11 @@ public class ReportingManagerImpl implements ReportingManager {
     }
 
     @Override
-    public void generateTotalSalesReport(LocalDate date) {
+    public List<Map<String, Object>> generateTotalSalesReport(LocalDate date) {
         lock.lock();
         Connection connection = null;
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
         try {
             connection = ConnectionPool.getConnection();
 
@@ -32,26 +34,18 @@ public class ReportingManagerImpl implements ReportingManager {
                     .map(row -> (BigDecimal) row[2])
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            LocalDate yesterday = date.minusDays(1);
-            List<Object[]> salesReportYesterday = reportingRepository.getTotalSalesReport(yesterday, connection);
-            BigDecimal totalSalesYesterday = salesReportYesterday.stream()
-                    .map(row -> (BigDecimal) row[2])
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            for (Object[] row : salesReport) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("itemCode", row[0]);
+                data.put("quantitySold", row[1]);
+                data.put("totalPrice", row[2]);
+                reportData.add(data);
+            }
 
-            System.out.println("\n==== Total Sales Report for " + date + " ====");
-            salesReport.forEach(row ->
-                    System.out.println("Item Code: " + row[0] + ", Quantity Sold: " + row[1] + ", Total Price: " + row[2])
-            );
-
-            System.out.println("\nTotal Sales Today: " + totalSalesToday);
-            System.out.println("Total Sales Yesterday: " + totalSalesYesterday);
-            System.out.println("Sales Difference: " + totalSalesToday.subtract(totalSalesYesterday));
-
-            List<Object[]> mostSoldCategories = reportingRepository.getMostSoldCategories(date, connection);
-            System.out.println("\n==== Most Sold Categories ====");
-            mostSoldCategories.forEach(row ->
-                    System.out.println("Category: " + row[0] + ", Total Sold: " + row[1])
-            );
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("date", date);
+            summary.put("totalSales", totalSalesToday);
+            reportData.add(summary);
 
         } catch (Exception e) {
             System.err.println("❌ Error generating sales report: " + e.getMessage());
@@ -59,106 +53,137 @@ public class ReportingManagerImpl implements ReportingManager {
             lock.unlock();
             if (connection != null) ConnectionPool.releaseConnection(connection);
         }
+
+        return reportData;
     }
 
     @Override
-    public void generateReshelvingReport(LocalDate date) {
+    public List<Map<String, Object>> generateReshelvingReport(LocalDate date) {
         lock.lock();
         Connection connection = null;
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
         try {
             connection = ConnectionPool.getConnection();
             List<Stock> reshelvingReport = reportingRepository.getReshelvingReport(date, connection);
 
-            System.out.println("\n==== Reshelving Report for " + date + " ====");
-            reshelvingReport.forEach(stock ->
-                    System.out.println("Item Code: " + stock.getItemCode() +
-                            ", Quantity in Stock: " + stock.getQuantityInStock() +
-                            ", Reshelf Quantity: " + stock.getReshelfQuantity() +
-                            ", Shelf Capacity: " + stock.getShelfCapacity() +
-                            ", Batch Code: " + stock.getBatchCode() +
-                            ", Expiry Date: " + stock.getExpiryDate())
-            );
+            for (Stock stock : reshelvingReport) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("itemCode", stock.getItemCode());
+                data.put("quantityInStock", stock.getQuantityInStock());
+                data.put("reshelfQuantity", stock.getReshelfQuantity());
+                data.put("shelfCapacity", stock.getShelfCapacity());
+                data.put("batchCode", stock.getBatchCode());
+                data.put("expiryDate", stock.getExpiryDate());
+                reportData.add(data);
+            }
+
         } catch (Exception e) {
             System.err.println("❌ Error generating reshelving report: " + e.getMessage());
         } finally {
             lock.unlock();
             if (connection != null) ConnectionPool.releaseConnection(connection);
         }
+
+        return reportData;
     }
 
     @Override
-    public void generateReorderLevelReport(LocalDate date) {
+    public List<Map<String, Object>> generateReorderLevelReport(LocalDate date) {
         lock.lock();
         Connection connection = null;
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
         try {
             connection = ConnectionPool.getConnection();
             List<Stock> reorderReport = reportingRepository.getReorderLevelReport(date, connection);
 
-            System.out.println("\n==== Reorder Level Report for " + date + " ====");
-            reorderReport.forEach(stock ->
-                    System.out.println("Item Code: " + stock.getItemCode() +
-                            ", Quantity in Stock: " + stock.getQuantityInStock() +
-                            ", Minimum Reorder Level: " + stock.getReorderLevel() +
-                            ", Batch Code: " + stock.getBatchCode())
-            );
+            for (Stock stock : reorderReport) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("itemCode", stock.getItemCode());
+                data.put("quantityInStock", stock.getQuantityInStock());
+                data.put("reorderLevel", stock.getReorderLevel());
+                data.put("batchCode", stock.getBatchCode());
+                reportData.add(data);
+            }
+
         } catch (Exception e) {
             System.err.println("❌ Error generating reorder level report: " + e.getMessage());
+
         } finally {
             lock.unlock();
             if (connection != null) ConnectionPool.releaseConnection(connection);
         }
+
+        return reportData;
     }
 
     @Override
-    public void generateStockReport(LocalDate date) {
+    public List<Map<String, Object>> generateStockReport(LocalDate date) {
         lock.lock();
         Connection connection = null;
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
         try {
             connection = ConnectionPool.getConnection();
             List<Stock> stockReport = reportingRepository.getStockReport(date, connection);
 
-            System.out.println("\n==== Stock Report for " + date + " ====");
-            stockReport.forEach(stock ->
-                    System.out.println("Item Code: " + stock.getItemCode() +
-                            ", Quantity in Stock: " + stock.getQuantityInStock() +
-                            ", Date of Purchase: " + stock.getDateOfPurchase() +
-                            ", Expiry Date: " + stock.getExpiryDate() +
-                            ", Batch Code: " + stock.getBatchCode())
-            );
+            for (Stock stock : stockReport) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("itemCode", stock.getItemCode());
+                data.put("quantityInStock", stock.getQuantityInStock());
+                data.put("dateOfPurchase", stock.getDateOfPurchase());
+                data.put("expiryDate", stock.getExpiryDate());
+                data.put("batchCode", stock.getBatchCode());
+                reportData.add(data);
+            }
+
         } catch (Exception e) {
             System.err.println("❌ Error generating stock report: " + e.getMessage());
         } finally {
             lock.unlock();
             if (connection != null) ConnectionPool.releaseConnection(connection);
         }
+
+        return reportData;
     }
 
     @Override
-    public void generateBillReport(LocalDate date) {
+    public List<Map<String, Object>> generateBillReport(LocalDate date) {
         lock.lock();
         Connection connection = null;
+        List<Map<String, Object>> reportData = new ArrayList<>();
+
         try {
             connection = ConnectionPool.getConnection();
             List<Object[]> billReport = reportingRepository.getBillReport(date, connection);
             BigDecimal totalRevenue = BigDecimal.ZERO;
             int totalBills = billReport.size();
 
-            System.out.println("\n==== Bill Report for " + date + " ====");
             for (Object[] row : billReport) {
-                System.out.println("Bill ID: " + row[0] + ", Customer ID: " + row[1] + ", Total Price: " + row[2]);
+                Map<String, Object> data = new HashMap<>();
+                data.put("billId", row[0]);
+                data.put("customerId", row[1]);
+                data.put("totalPrice", row[2]);
                 totalRevenue = totalRevenue.add((BigDecimal) row[2]);
+                reportData.add(data);
             }
 
-            System.out.println("\nTotal Bills: " + totalBills);
-            System.out.println("Total Revenue: " + totalRevenue);
+            Map<String, Object> summary = new HashMap<>();
+            summary.put("totalBills", totalBills);
+            summary.put("totalRevenue", totalRevenue);
+            if (totalBills > 0) {
+                summary.put("avgTransactionValue", totalRevenue.divide(BigDecimal.valueOf(totalBills), BigDecimal.ROUND_HALF_UP));
+            }
+            reportData.add(summary);
 
-            BigDecimal avgTransactionValue = totalRevenue.divide(BigDecimal.valueOf(totalBills), BigDecimal.ROUND_HALF_UP);
-            System.out.println("Average Transaction Value: " + avgTransactionValue);
         } catch (Exception e) {
             System.err.println("❌ Error generating bill report: " + e.getMessage());
         } finally {
             lock.unlock();
             if (connection != null) ConnectionPool.releaseConnection(connection);
         }
+
+        return reportData;
     }
 }

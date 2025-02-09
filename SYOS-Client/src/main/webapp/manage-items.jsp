@@ -11,93 +11,103 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Items - Admin</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/manage-items.css">
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/styles/admin-styles.css">
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             checkAdminAccess();
-            fetchItemList();  // Fetch the list of item IDs first
+            fetchItemsFromDB();  // Fetch items from the API
         });
 
         function checkAdminAccess() {
-            const role = sessionStorage.getItem("role");
+            var role = sessionStorage.getItem("role");
             if (!role || role !== "ADMIN") {
                 sessionStorage.clear();
                 window.location.href = "login.jsp";
             }
-
-            document.getElementById("admin-name").innerText = sessionStorage.getItem("name") || "Admin";
+            var adminName = sessionStorage.getItem("name") || "Admin";
+            document.getElementById("admin-name").textContent = adminName;
         }
 
-        async function fetchItemList() {
-            try {
-                const response = await fetch("http://localhost:8080/SYOS-Server/api/items");
-                const items = await response.json();
-
-                if (Array.isArray(items) && items.length > 0) {
-                    items.forEach(item => {
-                        const itemId = item.itemId;
-
-                        // Ensure itemId is valid (non-null and positive integer)
-                        if (itemId && itemId > 0) {
-                            console.log("Valid Item ID:", itemId);
-                            fetchItemDetails(itemId);  // Fetch each item by itemId
-                        } else {
-                            console.error("Invalid or missing itemId:", itemId);
-                        }
-                    });
-                } else {
-                    console.error("No items found or invalid data structure");
-                }
-            } catch (error) {
-                console.error("Error fetching items list:", error);
-            }
+        function fetchItemsFromDB() {
+            fetch("http://localhost:8080/SYOS-Server/api/items")
+                .then(function(response) { return response.json(); })
+                .then(function(items) {
+                    if (Array.isArray(items) && items.length > 0) {
+                        localStorage.setItem("items", JSON.stringify(items));
+                        displayAllItems(items);
+                    } else {
+                        console.warn("No items found from API.");
+                    }
+                })
+                .catch(function(error) {
+                    console.error("Error fetching items from API:", error);
+                });
         }
 
-        async function fetchItemDetails(itemId) {
-            try {
-                console.log("Fetching details for itemId:", itemId);  // Log the itemId being fetched
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/items/${itemId}`);
-                const item = await response.json();
+        function displayAllItems(items) {
+            var tableBody = document.getElementById("items-table-body");
+            tableBody.innerHTML = "";
 
-                if (item && item.itemId) {
-                    displayItem(item);  // Display the item in the table
-                } else {
-                    console.error(`Item with ID ${itemId} not found`);
-                }
-            } catch (error) {
-                console.error(`Error fetching item with ID ${itemId}:`, error);
-            }
+            items.forEach(function(item) {
+                var row = document.createElement("tr");
+
+                var itemCodeCell = document.createElement("td");
+                var itemNameCell = document.createElement("td");
+                var itemPriceCell = document.createElement("td");
+                var actionCell = document.createElement("td");
+
+                itemCodeCell.textContent = item.itemCode;
+                itemNameCell.textContent = item.itemName;
+                itemPriceCell.textContent = "₤" + item.itemPrice;
+
+                var editButton = document.createElement("button");
+                editButton.className = "edit-btn";
+                editButton.textContent = "✏️ Edit";
+                editButton.onclick = function () {
+                    editItem(item.itemId, item.itemCode, item.itemName, item.itemPrice);
+                };
+
+                var deleteButton = document.createElement("button");
+                deleteButton.className = "delete-btn";
+                deleteButton.textContent = "❌ Delete";
+                deleteButton.onclick = function () {
+                    deleteItem(item.itemId);
+                };
+
+                actionCell.appendChild(editButton);
+                actionCell.appendChild(deleteButton);
+
+                row.appendChild(itemCodeCell);
+                row.appendChild(itemNameCell);
+                row.appendChild(itemPriceCell);
+                row.appendChild(actionCell);
+
+                tableBody.appendChild(row);
+            });
         }
 
-
-
-        function displayItem(item) {
-            const tableBody = document.getElementById("items-table-body");
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td>${item.itemCode}</td>
-                <td>${item.itemName}</td>
-                <td>$${item.itemPrice}</td>
-                <td>
-                    <button class="edit-btn" onclick="editItem(${item.itemId}, '${item.itemCode}', '${item.itemName}', ${item.itemPrice})">✏️ Edit</button>
-                    <button class="delete-btn" onclick="deleteItem(${item.itemId})">❌ Delete</button>
-                </td>
-            `;
-            // Append the new row to the table body
-            tableBody.appendChild(row);
-        }
-
-        async function deleteItem(itemId) {
+        function deleteItem(itemId) {
             if (!confirm("Are you sure you want to delete this item?")) return;
-            try {
-                const response = await fetch(`http://localhost:8080/SYOS-Server/api/items/${itemId}`, { method: "DELETE" });
-                const result = await response.json();
-                alert(result.message || result);
-                fetchItemList(); // Refresh the list after deletion
-            } catch (error) {
-                console.error("Error deleting item:", error);
-            }
+
+            fetch("http://localhost:8080/SYOS-Server/api/items/" + itemId, {
+                method: "DELETE"
+            })
+                .then(function(response) {
+                    return response.text(); // Handle text response instead of JSON
+                })
+                .then(function(message) {
+                    console.log("Delete response:", message);
+                    var items = JSON.parse(localStorage.getItem("items")) || [];
+                    items = items.filter(function(item) {
+                        return item.itemId !== itemId;
+                    });
+                    localStorage.setItem("items", JSON.stringify(items));
+                    displayAllItems(items);
+                })
+                .catch(function(error) {
+                    console.error("Error deleting item:", error);
+                });
         }
 
         function editItem(itemId, itemCode, itemName, itemPrice) {
@@ -108,47 +118,55 @@
             document.getElementById("editForm").style.display = "block";
         }
 
-        async function addItem(event) {
+        function addItem(event) {
             event.preventDefault();
-            const itemCode = document.getElementById("itemCode").value;
-            const itemName = document.getElementById("itemName").value;
-            const itemPrice = document.getElementById("itemPrice").value;
+            var itemCode = document.getElementById("itemCode").value;
+            var itemName = document.getElementById("itemName").value;
+            var itemPrice = parseFloat(document.getElementById("itemPrice").value);
 
-            const response = await fetch("http://localhost:8080/SYOS-Server/api/items", {
+            fetch("http://localhost:8080/SYOS-Server/api/items", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ itemCode, itemName, itemPrice })
-            });
-
-            const result = await response.json();
-            alert(result.message || result);
-            fetchItemList(); // Refresh the items list
+                body: JSON.stringify({ itemCode: itemCode, itemName: itemName, itemPrice: itemPrice })
+            })
+                .then(function(response) { return response.text(); }) // Handle non-JSON response
+                .then(function(message) {
+                    console.log("Add response:", message);
+                    fetchItemsFromDB(); // Refresh data from API
+                })
+                .catch(function(error) {
+                    console.error("Error adding item:", error);
+                });
         }
 
-        async function updateItem(event) {
+        function updateItem(event) {
             event.preventDefault();
-            const itemId = document.getElementById("updateItemId").value;
-            const itemCode = document.getElementById("updateItemCode").value;
-            const itemName = document.getElementById("updateItemName").value;
-            const itemPrice = document.getElementById("updateItemPrice").value;
+            var itemId = parseInt(document.getElementById("updateItemId").value);
+            var itemCode = document.getElementById("updateItemCode").value;
+            var itemName = document.getElementById("updateItemName").value;
+            var itemPrice = parseFloat(document.getElementById("updateItemPrice").value);
 
-            const response = await fetch(`http://localhost:8080/SYOS-Server/api/items/${itemId}`, {
+            fetch("http://localhost:8080/SYOS-Server/api/items/" + itemId, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ itemId, itemCode, itemName, itemPrice })
-            });
-
-            const result = await response.json();
-            alert(result.message || result);
-            document.getElementById("editForm").style.display = "none";
-            fetchItemList(); // Refresh the items list
+                body: JSON.stringify({ itemId: itemId, itemCode: itemCode, itemName: itemName, itemPrice: itemPrice })
+            })
+                .then(function(response) { return response.text(); }) // Handle text response
+                .then(function(message) {
+                    console.log("Update response:", message);
+                    fetchItemsFromDB(); // Refresh data from API
+                    document.getElementById("editForm").style.display = "none";
+                })
+                .catch(function(error) {
+                    console.error("Error updating item:", error);
+                });
         }
 
         function logout() {
             sessionStorage.clear();
+            localStorage.removeItem("items");
             window.location.href = "login.jsp";
         }
-
     </script>
 </head>
 <body>
@@ -191,12 +209,9 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            <tbody id="items-table-body">
-            <!-- Table rows will be dynamically added here -->
-            </tbody>
+            <tbody id="items-table-body"></tbody>
         </table>
     </div>
 </main>
 </body>
 </html>
-

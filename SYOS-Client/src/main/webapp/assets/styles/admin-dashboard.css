@@ -1,0 +1,205 @@
+/* === Global Styles === */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #2A2A2A, #1E1E1E);
+    color: #EAEAEA;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* === Admin Container === */
+.admin-container {
+    background: rgba(30, 30, 30, 0.9);
+    padding: 35px;
+    border-radius: 15px;
+    width: 420px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.15);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* === Welcome Header === */
+.admin-container h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #66BB6A; /* Green accent */
+    font-weight: bold;
+}
+
+.admin-container p {
+    font-size: 14px;
+    color: #bdbdbd;
+    margin-bottom: 15px;
+}
+
+/* === Logout Button === */
+.logout-btn {
+    background: #66BB6A;
+    color: #1E1E1E;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.logout-btn:hover {
+    background: #4CAF50;
+    transform: scale(1.05);
+}
+
+/* === Admin Navbar Styling === */
+.admin-navbar {
+    background: #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Left Side Content */
+.admin-navbar-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-navbar h2 {
+    font-size: 22px;
+    margin: 0;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.admin-navbar p {
+    font-size: 14px;
+    color: #bbb;
+    margin: 5px 0 0;
+}
+
+/* Logout Button */
+.logout-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #388E3C;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-navbar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .logout-btn {
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Navigation Styling === */
+nav {
+    margin-top: 25px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    margin: 12px 0;
+}
+
+nav ul li a {
+    display: block;
+    text-decoration: none;
+    font-size: 18px;  /* Increased font size for better visibility */
+    font-weight: 600;
+    color: #EAEAEA;
+    background: rgba(76, 175, 80, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 255, 0, 0.15);
+}
+
+nav ul li a:hover {
+    background: #4CAF50; /* Solid green */
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 255, 0, 0.3);
+}
+
+/* === Subtle Hover Effects === */
+.admin-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.admin-card:hover {
+    transform: scale(1.03);
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+    .admin-container {
+        width: 90%;
+    }
+}
+
+/* === Fade-in Animation === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
